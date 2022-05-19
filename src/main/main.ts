@@ -14,6 +14,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { getWifiArray, WIFI_CHANNEL } from './wifi';
 
 export default class AppUpdater {
   constructor() {
@@ -25,10 +26,9 @@ export default class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
+ipcMain.on(WIFI_CHANNEL, async (event) => {
+  const wifiArray = getWifiArray();
+  event.reply(WIFI_CHANNEL, wifiArray);
 });
 
 if (process.env.NODE_ENV === 'production') {
