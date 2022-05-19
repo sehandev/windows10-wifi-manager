@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 /**
@@ -12,9 +13,11 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import { execSync } from 'child_process';
+import iconv from 'iconv-lite';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import { getWifiArray, WIFI_CHANNEL } from './wifi';
+import { WifiInfo, WIFI_CHANNEL } from './wifi';
 
 export default class AppUpdater {
   constructor() {
@@ -26,9 +29,31 @@ export default class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on(WIFI_CHANNEL, async (event) => {
-  const wifiArray = getWifiArray();
-  event.reply(WIFI_CHANNEL, wifiArray);
+ipcMain.on(WIFI_CHANNEL, async (event, args: number[]) => {
+  const stdout = execSync('netsh wlan show profiles');
+  const profilesString = iconv.decode(stdout, 'euc-kr');
+  let profileArray = profilesString.split('모든 사용자 프로필 : ');
+  profileArray = profileArray.splice(1);
+  const wifiInfoArray: WifiInfo[] = [];
+  profileArray
+    .sort((a, b) => (a > b ? 1 : -1))
+    .splice(args[0], args[1])
+    .forEach((profile) => {
+      const wifiSsid = profile.split('\r\n')[0];
+      const passwordStdout = execSync(
+        `netsh wlan show profile "${wifiSsid}" key=clear`
+      );
+      let passwordString = iconv.decode(passwordStdout, 'euc-kr');
+      if (passwordString.includes('키 콘텐츠')) {
+        passwordString = passwordString
+          .split('키 콘텐츠            :')[1]
+          .split('\r\n')[0];
+      } else {
+        passwordString = '없음';
+      }
+      wifiInfoArray.push({ ssid: wifiSsid, password: passwordString });
+    });
+  event.reply(WIFI_CHANNEL, wifiInfoArray);
 });
 
 if (process.env.NODE_ENV === 'production') {

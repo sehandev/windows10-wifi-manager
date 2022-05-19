@@ -4,7 +4,7 @@ declare global {
   interface Window {
     electron: {
       ipcRenderer: {
-        sendMessage(channel: Channels): void;
+        sendMessage(channel: Channels, args: number[]): void;
         once(channel: Channels, func: (arg: WifiInfo[]) => void): void;
       };
     };

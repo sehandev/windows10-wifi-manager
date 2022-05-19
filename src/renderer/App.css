@@ -1,14 +1,16 @@
 @font-face {
-	font-family: 'Pretendard Variable';
-	font-weight: 45 920;
-	font-style: normal;
-	font-display: swap;
-	src: local('Pretendard Variable'), url('../../assets/fonts/PretendardVariable.woff2') format('woff2-variations');
+  font-family: 'Pretendard Variable';
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  src: local('Pretendard Variable'),
+    url('../../assets/fonts/PretendardVariable.woff2')
+      format('woff2-variations');
 }
 
 body {
   color: white;
-  height: 100vh;
+  min-height: 100vh;
   background: linear-gradient(
     200.96deg,
     #fedc2a -29.09%,
@@ -16,7 +18,6 @@ body {
     #7a2c9e 129.35%
   );
   font-family: 'Pretendard Variable';
-  overflow-y: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
